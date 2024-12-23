@@ -6,9 +6,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "express": "^4.21.2",
     "next": "latest",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "tailwind": "^4.0.0"
   },
   "engines": {
     "node": ">=18"
