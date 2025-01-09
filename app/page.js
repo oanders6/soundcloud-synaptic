@@ -1,5 +1,7 @@
+"use client";
 import Head from "next/head";
 import styles from "../styles/Home.module.css";
+import LoginButton from "./components/LoginButton";
 
 export default function Home() {
   return (
@@ -8,6 +10,9 @@ export default function Home() {
         <title>Create Next App</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <div className="flex min-h-screen justify-center items-center">
+        <LoginButton />
+      </div>
 
       <main>
         <h1 className={styles.title}>
