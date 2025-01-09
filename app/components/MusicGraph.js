@@ -60,6 +60,13 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
     [imageCache]
   );
 
+  const handleNodeRightClick = useCallback((node, event) => {
+    event.preventDefault(); // Prevent default context menu
+    if (node.type === "song" && node.data?.permalink) {
+      window.open(node.data.permalink, "_blank");
+    }
+  }, []);
+
   const handleNodeClick = useCallback(
     async (node) => {
       if (!node || !node.type) return;
@@ -163,6 +170,21 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
             ctx.arc(node.x, node.y, size, 0, 2 * Math.PI);
             ctx.stroke();
           }
+
+          // Add clickable indicator
+          if (node.data.permalink) {
+            ctx.beginPath();
+            ctx.fillStyle = "#22c55e";
+            const indicatorSize = size * 0.3;
+            ctx.arc(
+              node.x + size * 0.7,
+              node.y - size * 0.7,
+              indicatorSize,
+              0,
+              2 * Math.PI
+            );
+            ctx.fill();
+          }
         } else {
           // Fallback for when image hasn't loaded
           ctx.beginPath();
@@ -223,6 +245,7 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
         nodeCanvasObject={nodeCanvasObject}
         nodeCanvasObjectMode={() => "replace"}
         onNodeClick={handleNodeClick}
+        onNodeRightClick={handleNodeRightClick}
         linkColor={() => "#cbd5e1"}
         linkWidth={1.5}
         cooldownTicks={100}
