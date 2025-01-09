@@ -71,12 +71,10 @@ const Dashboard = () => {
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Your Music Graph</h1>
       {hasValidData ? (
-        <div className="bg-white rounded-lg shadow-lg p-4">
-          <MusicGraph
-            initialGraphData={initialGraphData}
-            onNodeClick={handleNodeClick}
-          />
-        </div>
+        <MusicGraph
+          initialGraphData={initialGraphData}
+          onNodeClick={handleNodeClick}
+        />
       ) : (
         <div className="text-red-500">No valid graph data available</div>
       )}
