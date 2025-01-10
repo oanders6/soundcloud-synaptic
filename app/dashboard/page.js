@@ -68,8 +68,8 @@ const Dashboard = () => {
     initialGraphData.nodes.length > 0;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Your Music Graph</h1>
+    <div className="mx-auto py-8 bg-[#FF7700]">
+      <h1 className="text-3xl text-white font-bold mb-6 absolute top-4 left-4 font-univers">Your Music Graph</h1>
       {hasValidData ? (
         <MusicGraph
           initialGraphData={initialGraphData}
@@ -86,16 +86,17 @@ const Dashboard = () => {
       {/* {JSON.stringify(initialGraphData, null, 2)} */}
       {/* </pre> */}
       {/* </div> */}
-      <iframe
+      {/* SoundCloud Widget */}
+      {/* <iframe
         className="w-[32px] h-[32px]"
         src="https://w.soundcloud.com/icon/?url=http%3A%2F%2Fsoundcloud.com%2Fowen-anderson-612944733&color=orange_white&size=32"
-      />
+      /> */}
       <div className="absolute bottom-4 right-4" style={{ zIndex: 9999 }}>
         <img
           src="/powered-by-soundcloud.png"
           alt="Powered by SoundCloud"
-          width={64}
-          height={64}
+          width={96}
+          height={96}
         />
       </div>
     </div>

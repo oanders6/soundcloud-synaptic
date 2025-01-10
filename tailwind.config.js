@@ -6,7 +6,11 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        univers: ["Univers", "sans-serif"], // fallback font
+      },
+    },
   },
   plugins: [],
 };
