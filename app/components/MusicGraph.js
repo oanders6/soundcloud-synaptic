@@ -15,6 +15,12 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
   const [mounted, setMounted] = useState(false);
   const [imageCache, setImageCache] = useState({});
   const [graphData, setGraphData] = useState(initialGraphData);
+  const [tooltipContent, setTooltipContent] = useState({
+    text: "",
+    x: 0,
+    y: 0,
+    visible: false,
+  });
 
   // Initialize graph with proper center positioning and full screen
   useEffect(() => {
@@ -59,6 +65,33 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
     },
     [imageCache]
   );
+
+  const handleNodeHover = useCallback((node, prevNode) => {
+    if (node && fgRef.current) {
+      const text =
+        node.type === "song"
+          ? `${node.data.title || "Unknown Track"} by ${
+              node.data.artistName || "Unknown Artist"
+            }`
+          : node.data.username || "User";
+
+      // Convert graph coordinates to screen coordinates
+      const { x, y } = fgRef.current.graph2ScreenCoords(node.x, node.y);
+
+      // Get container position
+      const containerRect = containerRef.current.getBoundingClientRect();
+
+      // Calculate absolute position
+      setTooltipContent({
+        text,
+        x: x + containerRect.left,
+        y: y + containerRect.top - 10, // Position slightly above the node
+        visible: true,
+      });
+    } else {
+      setTooltipContent((prev) => ({ ...prev, visible: false }));
+    }
+  }, []);
 
   const handleNodeRightClick = useCallback((node, event) => {
     event.preventDefault(); // Prevent default context menu
@@ -246,6 +279,7 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
         nodeCanvasObjectMode={() => "replace"}
         onNodeClick={handleNodeClick}
         onNodeRightClick={handleNodeRightClick}
+        onNodeHover={handleNodeHover}
         linkColor={() => "#cbd5e1"}
         linkWidth={1.5}
         cooldownTicks={100}
@@ -255,6 +289,20 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
         minZoom={0.5}
         maxZoom={4}
       />
+      {tooltipContent.visible && (
+        <div
+          style={{
+            position: "fixed",
+            left: `${tooltipContent.x}px`,
+            top: `${tooltipContent.y}px`,
+            transform: "translate(-50%, -100%)",
+            pointerEvents: "none",
+          }}
+          className="bg-gray-800 text-white px-3 py-2 rounded-lg shadow-lg text-sm whitespace-nowrap z-50"
+        >
+          {tooltipContent.text}
+        </div>
+      )}
     </div>
   );
 };
