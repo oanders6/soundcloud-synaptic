@@ -3,6 +3,7 @@
 import React, { useCallback, useRef, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { GraphState, GraphNode } from "./GraphDataTransformer";
+import { X } from "lucide-react";
 
 const ForceGraph2D = dynamic(
   () => import("react-force-graph").then((mod) => mod.ForceGraph2D),
@@ -15,12 +16,31 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
   const [mounted, setMounted] = useState(false);
   const [imageCache, setImageCache] = useState({});
   const [graphData, setGraphData] = useState(initialGraphData);
-  const [tooltipContent, setTooltipContent] = useState({
-    text: "",
+  const [widgetState, setWidgetState] = useState({
+    visible: false,
     x: 0,
     y: 0,
-    visible: false,
+    trackUrl: "",
   });
+
+  // Initialize SoundCloud Widget API with user interaction check
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://w.soundcloud.com/player/api.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    // Add a one-time click listener to the document to enable autoplay
+    const handleFirstInteraction = () => {
+      document.removeEventListener("click", handleFirstInteraction);
+    };
+    document.addEventListener("click", handleFirstInteraction);
+
+    return () => {
+      document.body.removeChild(script);
+      document.removeEventListener("click", handleFirstInteraction);
+    };
+  }, []);
 
   // Initialize graph with proper center positioning and full screen
   useEffect(() => {
@@ -66,31 +86,32 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
     [imageCache]
   );
 
-  const handleNodeHover = useCallback((node, prevNode) => {
-    if (node && fgRef.current) {
-      const text =
-        node.type === "song"
-          ? `${node.data.title || "Unknown Track"} by ${
-              node.data.artistName || "Unknown Artist"
-            }`
-          : node.data.username || "User";
+  const handleNodeHover = useCallback(
+    (node) => {
+      if (node && node.type === "song" && fgRef.current) {
+        // Convert graph coordinates to screen coordinates
+        const { x, y } = fgRef.current.graph2ScreenCoords(node.x, node.y);
 
-      // Convert graph coordinates to screen coordinates
-      const { x, y } = fgRef.current.graph2ScreenCoords(node.x, node.y);
+        // Get container position
+        const containerRect = containerRef.current.getBoundingClientRect();
 
-      // Get container position
-      const containerRect = containerRef.current.getBoundingClientRect();
+        // Always update the widget position and URL for song nodes
+        if (node.data.permalink !== widgetState.trackUrl) {
+          setWidgetState({
+            visible: true,
+            x: x + containerRect.left,
+            y: y + containerRect.top - 10,
+            trackUrl: node.data.permalink,
+          });
+        }
+      }
+    },
+    [widgetState.trackUrl]
+  );
 
-      // Calculate absolute position
-      setTooltipContent({
-        text,
-        x: x + containerRect.left,
-        y: y + containerRect.top - 10, // Position slightly above the node
-        visible: true,
-      });
-    } else {
-      setTooltipContent((prev) => ({ ...prev, visible: false }));
-    }
+  const handleCloseWidget = useCallback((e) => {
+    e.stopPropagation();
+    setWidgetState((prev) => ({ ...prev, visible: false }));
   }, []);
 
   const handleNodeRightClick = useCallback((node, event) => {
@@ -198,26 +219,26 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
           // Draw expansion indicator circle on the border
           if (!node.expanded) {
             ctx.beginPath();
-            ctx.strokeStyle = "#22c55e";
+            ctx.strokeStyle = "#ff7700";
             ctx.lineWidth = 2 / globalScale;
             ctx.arc(node.x, node.y, size, 0, 2 * Math.PI);
             ctx.stroke();
           }
 
           // Add clickable indicator
-          if (node.data.permalink) {
-            ctx.beginPath();
-            ctx.fillStyle = "#22c55e";
-            const indicatorSize = size * 0.3;
-            ctx.arc(
-              node.x + size * 0.7,
-              node.y - size * 0.7,
-              indicatorSize,
-              0,
-              2 * Math.PI
-            );
-            ctx.fill();
-          }
+          // if (node.data.permalink) {
+          //   ctx.beginPath();
+          //   ctx.fillStyle = "#22c55e";
+          //   const indicatorSize = size * 0.3;
+          //   ctx.arc(
+          //     node.x + size * 0.7,
+          //     node.y - size * 0.7,
+          //     indicatorSize,
+          //     0,
+          //     2 * Math.PI
+          //   );
+          //   ctx.fill();
+          // }
         } else {
           // Fallback for when image hasn't loaded
           ctx.beginPath();
@@ -289,18 +310,35 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
         minZoom={0.5}
         maxZoom={4}
       />
-      {tooltipContent.visible && (
+      {widgetState.visible && (
         <div
           style={{
             position: "fixed",
-            left: `${tooltipContent.x}px`,
-            top: `${tooltipContent.y}px`,
+            left: `${widgetState.x}px`,
+            top: `${widgetState.y}px`,
             transform: "translate(-50%, -100%)",
-            pointerEvents: "none",
+            zIndex: 50,
+            width: "300px",
+            background: "transparent",
           }}
-          className="bg-gray-800 text-white px-3 py-2 rounded-lg shadow-lg text-sm whitespace-nowrap z-50"
+          className="rounded-lg shadow-xl"
         >
-          {tooltipContent.text}
+          <div className="relative">
+            <button
+              onClick={handleCloseWidget}
+              className="absolute -right-2 -top-2 bg-gray-800 hover:bg-gray-700 text-white rounded-full p-1 z-10"
+            >
+              <X size={16} />
+            </button>
+            <iframe
+              width="100%"
+              height="165"
+              scrolling="no"
+              frameBorder="no"
+              allow="autoplay"
+              src={`https://w.soundcloud.com/player/?url=${widgetState.trackUrl}&color=%23ff5500&auto_play=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false&show_teaser=false&visual=true`}
+            ></iframe>
+          </div>
         </div>
       )}
     </div>

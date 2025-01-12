@@ -10,11 +10,17 @@ export default function LoginButton() {
         Graph visualization for music discovery
       </p>
       <button
-        className="px-12 py-4 text-lg uppercase tracking-wider text-white font-univers rounded-full border-2 border-white 
+        className="px-12 py-4 text-lg uppercase flex flex col tracking-wider text-white font-univers rounded-full border-2 border-white 
                    hover:bg-white hover:text-[#FF7700] transition-colors duration-300"
         onClick={() => (window.location.href = "/api/auth/login")}
       >
         Connect with SoundCloud
+        <img className="ml-2"
+          src="/soundcloud-no-bg.png"
+          alt="Powered by SoundCloud"
+          width={32}
+          height={32}
+        />{" "}
       </button>
     </div>
   );

@@ -10,6 +10,7 @@
     "@mui/material": "^6.3.1",
     "crypto": "^1.0.1",
     "express": "^4.21.2",
+    "lucide-react": "^0.471.0",
     "next": "latest",
     "pkce": "^1.0.0-beta2",
     "react": "18.2.0",
