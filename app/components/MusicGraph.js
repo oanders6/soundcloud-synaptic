@@ -42,14 +42,15 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
     };
   }, []);
 
-  // Initialize graph with proper center positioning and full screen
+  // Initialize graph with proper sizing - respecting the top navigation area
   useEffect(() => {
     setMounted(true);
     const handleResize = () => {
       if (containerRef.current && fgRef.current) {
-        const { width, height } = document.body.getBoundingClientRect();
-        containerRef.current.style.width = `${width}px`;
-        containerRef.current.style.height = `${height}px`;
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const width = containerRect.width;
+        const height = containerRect.height;
+
         fgRef.current.width(width);
         fgRef.current.height(height);
         fgRef.current.centerAt(width / 2, height / 2);
@@ -219,26 +220,11 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
           // Draw expansion indicator circle on the border
           if (!node.expanded) {
             ctx.beginPath();
-            ctx.strokeStyle = "#ff7700";
+            ctx.strokeStyle = "#ffffff";
             ctx.lineWidth = 2 / globalScale;
             ctx.arc(node.x, node.y, size, 0, 2 * Math.PI);
             ctx.stroke();
           }
-
-          // Add clickable indicator
-          // if (node.data.permalink) {
-          //   ctx.beginPath();
-          //   ctx.fillStyle = "#22c55e";
-          //   const indicatorSize = size * 0.3;
-          //   ctx.arc(
-          //     node.x + size * 0.7,
-          //     node.y - size * 0.7,
-          //     indicatorSize,
-          //     0,
-          //     2 * Math.PI
-          //   );
-          //   ctx.fill();
-          // }
         } else {
           // Fallback for when image hasn't loaded
           ctx.beginPath();
@@ -250,7 +236,7 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
         // Add artist name below
         const fontSize = Math.max(size * 0.6, 4);
         ctx.font = `${fontSize}px Sans-Serif`;
-        ctx.fillStyle = "#94a3b8";
+        ctx.fillStyle = "#ffffff";
         ctx.textAlign = "center";
         ctx.fillText(
           node.data.artistName || "",
@@ -289,10 +275,7 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
   if (!mounted) return null;
 
   return (
-    <div
-      ref={containerRef}
-      className="fixed top-0 left-0 right-0 bottom-0 overflow-hidden"
-    >
+    <div ref={containerRef} className="w-full h-full relative">
       <ForceGraph2D
         ref={fgRef}
         graphData={graphData}
@@ -317,7 +300,7 @@ const MusicGraph = ({ initialGraphData, onNodeClick }) => {
             left: `${widgetState.x}px`,
             top: `${widgetState.y}px`,
             transform: "translate(-50%, -100%)",
-            zIndex: 50,
+            zIndex: 10,
             width: "300px",
             background: "transparent",
           }}
